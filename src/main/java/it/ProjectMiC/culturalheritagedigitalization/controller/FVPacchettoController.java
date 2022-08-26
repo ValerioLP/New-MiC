@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.ProjectMiC.culturalheritagedigitalization.model.APIResponse;
 import it.ProjectMiC.culturalheritagedigitalization.model.FormatoPacchettoRequest;
+import it.ProjectMiC.culturalheritagedigitalization.model.FormatoPacchettoResponse;
 import it.ProjectMiC.culturalheritagedigitalization.model.FormatoValidazionePacchetto;
 import it.ProjectMiC.culturalheritagedigitalization.service.FormatoValidazionePacchettoService;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,12 +39,31 @@ public class FVPacchettoController {
     })
     @GetMapping("/readformatopacchetto")
     public ResponseEntity<?> readFormatoPacchetto(@RequestParam(required = false) String id_formato) {
-        if (id_formato == null)
-            return new ResponseEntity<>(formatoValidazionePacchettoService.findAll(), HttpStatus.OK);
+        if (id_formato == null) {
+            List<FormatoValidazionePacchetto> formatoValidazionePacchettoList = formatoValidazionePacchettoService.findAll();
+            List<FormatoPacchettoResponse> formatoPacchettoResponseList = new ArrayList<>();
+            formatoValidazionePacchettoList.forEach(f -> {
+                FormatoPacchettoResponse formatoPacchettoResponse = new FormatoPacchettoResponse();
+                formatoPacchettoResponse.setId_formato_pacchetto(f.getId_formato());
+                formatoPacchettoResponse.setId_tipo_formato(f.getTipoFormato().getId_tipo_formato());
+                formatoPacchettoResponse.setId_validazione(f.getValidazione().getId_validazione());
+                formatoPacchettoResponse.setId_depositatore(f.getDepositatore().getId_depositatore());
+                formatoPacchettoResponse.setDesc_tipo_formato(f.getTipoFormato().getDescrizione());
+                formatoPacchettoResponseList.add(formatoPacchettoResponse);
+            });
+            return new ResponseEntity<>(formatoPacchettoResponseList, HttpStatus.OK);
+        }
         FormatoValidazionePacchetto fvp = formatoValidazionePacchettoService.findById(id_formato);
         if (fvp == null)
             return new ResponseEntity<>("Non e' stato trovato nessun formato con id: " + id_formato, HttpStatus.NOT_ACCEPTABLE);
-        return new ResponseEntity<>(fvp, HttpStatus.OK);
+
+        FormatoPacchettoResponse formatoPacchettoResponse = new FormatoPacchettoResponse();
+        formatoPacchettoResponse.setId_formato_pacchetto(fvp.getId_formato());
+        formatoPacchettoResponse.setId_tipo_formato(fvp.getTipoFormato().getId_tipo_formato());
+        formatoPacchettoResponse.setId_validazione(fvp.getValidazione().getId_validazione());
+        formatoPacchettoResponse.setId_depositatore(fvp.getDepositatore().getId_depositatore());
+        formatoPacchettoResponse.setDesc_tipo_formato(fvp.getTipoFormato().getDescrizione());
+        return new ResponseEntity<>(formatoPacchettoResponse, HttpStatus.OK);
     }
 
 
@@ -100,7 +121,14 @@ public class FVPacchettoController {
             return new ResponseEntity<>("Non e' stato trovato nessun id_validazione: " + checkIdValidazione, HttpStatus.NOT_ACCEPTABLE);
         if(fvp.getDepositatore() == null)
             return new ResponseEntity<>("Esiste gia' un depositatore con uuid_provider: " + checkUuidProvider, HttpStatus.NOT_ACCEPTABLE);
-        return new ResponseEntity<>(fvp, HttpStatus.CREATED);
+
+        FormatoPacchettoResponse formatoPacchettoResponse = new FormatoPacchettoResponse();
+        formatoPacchettoResponse.setId_formato_pacchetto(fvp.getId_formato());
+        formatoPacchettoResponse.setId_tipo_formato(fvp.getTipoFormato().getId_tipo_formato());
+        formatoPacchettoResponse.setId_validazione(fvp.getValidazione().getId_validazione());
+        formatoPacchettoResponse.setId_depositatore(fvp.getDepositatore().getId_depositatore());
+        formatoPacchettoResponse.setDesc_tipo_formato(fvp.getTipoFormato().getDescrizione());
+        return new ResponseEntity<>(formatoPacchettoResponse, HttpStatus.CREATED);
     }
 
     @Operation(summary = "L’API deleteformatopacchetto consente di eliminare una risorsa.")
