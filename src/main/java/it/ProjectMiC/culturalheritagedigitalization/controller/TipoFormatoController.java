@@ -29,8 +29,6 @@ public class TipoFormatoController {
             @ApiResponse(responseCode = "200", description = "GET avvenuto con successo",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = TipoFormato.class))}),
-            @ApiResponse(responseCode = "406", description = "Si prega di inserire un id valido",
-                    content = @Content)
     })
     @GetMapping("/readtipoformato")
     public ResponseEntity<?> readTipoFormatoById(@RequestParam(required = false) String id_tipo_formato) {
