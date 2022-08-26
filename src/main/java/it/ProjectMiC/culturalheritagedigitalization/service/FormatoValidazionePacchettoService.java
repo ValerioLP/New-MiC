@@ -139,6 +139,7 @@ public class FormatoValidazionePacchettoService {
                     depositatoreEntity = null;
                 } else depositatoreEntity = depositatoreEntityOpt.get();
             }
+            else depositatoreEntity = entityOld.get().getDepositatoreEntity();
 
             if(formatoPacchetto.getDescrizione() != null)
                 fvpEntity.setDescrizione(formatoPacchetto.getDescrizione());

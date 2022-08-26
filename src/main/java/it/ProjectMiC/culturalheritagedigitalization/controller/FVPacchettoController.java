@@ -38,8 +38,8 @@ public class FVPacchettoController {
                     content = @Content)
     })
     @GetMapping("/readformatopacchetto")
-    public ResponseEntity<?> readFormatoPacchetto(@RequestParam(required = false) String id_formato) {
-        if (id_formato == null) {
+    public ResponseEntity<?> readFormatoPacchetto(@RequestParam(required = false) String id_formato_pacchetto) {
+        if (id_formato_pacchetto == null) {
             List<FormatoValidazionePacchetto> formatoValidazionePacchettoList = formatoValidazionePacchettoService.findAll();
             List<FormatoPacchettoResponse> formatoPacchettoResponseList = new ArrayList<>();
             formatoValidazionePacchettoList.forEach(f -> {
@@ -53,9 +53,9 @@ public class FVPacchettoController {
             });
             return new ResponseEntity<>(formatoPacchettoResponseList, HttpStatus.OK);
         }
-        FormatoValidazionePacchetto fvp = formatoValidazionePacchettoService.findById(id_formato);
+        FormatoValidazionePacchetto fvp = formatoValidazionePacchettoService.findById(id_formato_pacchetto);
         if (fvp == null)
-            return new ResponseEntity<>("Non e' stato trovato nessun formato con id: " + id_formato, HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity<>("Non e' stato trovato nessun formato con id: " + id_formato_pacchetto, HttpStatus.NOT_ACCEPTABLE);
 
         FormatoPacchettoResponse formatoPacchettoResponse = new FormatoPacchettoResponse();
         formatoPacchettoResponse.setId_formato_pacchetto(fvp.getId_formato());
@@ -140,12 +140,12 @@ public class FVPacchettoController {
                     content = @Content),
     })
     @DeleteMapping("/deleteformatopacchetto")
-    public ResponseEntity<?> deleteFormatoValidazionePacchetto(@RequestParam String id_formato) {
-        if (id_formato == null || id_formato.equals(""))
+    public ResponseEntity<?> deleteFormatoValidazionePacchetto(@RequestParam String id_formato_pacchetto) {
+        if (id_formato_pacchetto == null || id_formato_pacchetto.equals(""))
             return new ResponseEntity<>("Si prega di inserire il parametro id", HttpStatus.NOT_ACCEPTABLE);
-        Optional<FormatoValidazionePacchetto> fvpOpt = Optional.ofNullable(formatoValidazionePacchettoService.deleteFormatoValidazionePacchetto(id_formato));
+        Optional<FormatoValidazionePacchetto> fvpOpt = Optional.ofNullable(formatoValidazionePacchettoService.deleteFormatoValidazionePacchetto(id_formato_pacchetto));
         if (!fvpOpt.isPresent())
-            return new ResponseEntity<>("Non e' stato trovato nessun formato con id: " + id_formato, HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity<>("Non e' stato trovato nessun formato con id: " + id_formato_pacchetto, HttpStatus.NOT_ACCEPTABLE);
         return ResponseEntity.of(fvpOpt);
     }
     @Operation(summary = "L’API updateformatopacchetto consente di modificare una risorsa esistente e precedentemente creata con l’API createformatopacchetto.")

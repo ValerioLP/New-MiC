@@ -28,15 +28,15 @@ public class FormatoValidazionePacchettoEntity {
     @Column(name = "Id_Provider_PDND", updatable = false, nullable = false, length = 50)
     private String uuid_provider;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_depositatore", referencedColumnName = "Id_Depositatore")
     private DepositatoreEntity depositatoreEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_validazione", referencedColumnName = "Id_Validazione")
     private ValidazioneEntity validazioneEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_tipo_formato", referencedColumnName = "Id_Tipo_Formato")
     private TipoFormatoEntity tipoFormatoEntity;
 
