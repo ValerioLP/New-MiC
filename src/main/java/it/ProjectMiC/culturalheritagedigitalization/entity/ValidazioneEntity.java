@@ -26,7 +26,7 @@ public class ValidazioneEntity {
     @Column(name = "Espressione")
     private String espressione;
 
-    @OneToMany(mappedBy = "validazioneEntity", cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "validazioneEntity", cascade = CascadeType.ALL)
     private List<FormatoValidazionePacchettoEntity> fvpEntities;
 
     @Column(name = "Stato")

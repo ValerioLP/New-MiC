@@ -56,21 +56,31 @@ public class FormatoValidazionePacchettoService {
         if(!tipoFormatoEntity.isPresent())
             LOGGER.info("Non e' stato trovato nessun tipo formato con id: " + formatoPacchetto.getId_tipo_formato());
 
-        Optional<DepositatoreEntity> depositatoreEntity = depositatoreRepository.findByUuid_provider(formatoPacchetto.getUuid_provider());
-        if(!depositatoreEntity.isPresent())
-            LOGGER.info("Non e' stato trovato nessun depositatore con uuid_provider: " + formatoPacchetto.getUuid_provider());
+        Optional<DepositatoreEntity> depositatoreEntityOpt = depositatoreRepository.findByUuid_provider(formatoPacchetto.getUuid_provider());
+        if(depositatoreEntityOpt.isPresent()) {
+            LOGGER.info("Esiste gia' un depositatore con uuid_provider: " + formatoPacchetto.getUuid_provider());
+            depositatoreEntityOpt = Optional.empty();
+        } else {
+            DepositatoreEntity depositatoreEntity = new DepositatoreEntity();
+            depositatoreEntity.setUuid_provider(formatoPacchetto.getUuid_provider());
+            depositatoreEntity.setStato(true);
+            depositatoreRepository.save(depositatoreEntity);
+            depositatoreEntityOpt = depositatoreRepository.findByUuid_provider(formatoPacchetto.getUuid_provider());
+        }
 
         FormatoValidazionePacchettoEntity fvpEntity = new FormatoValidazionePacchettoEntity();
         fvpEntity.setId_formato(UUID.randomUUID().toString());
         fvpEntity.setUuid_provider(formatoPacchetto.getUuid_provider());
         fvpEntity.setFlussoNifi(formatoPacchetto.getFlussoNifi());
         fvpEntity.setDescrizione(formatoPacchetto.getDescrizione());
-        depositatoreEntity.ifPresent(fvpEntity::setDepositatoreEntity);
+        depositatoreEntityOpt.ifPresent(fvpEntity::setDepositatoreEntity);
         validazioneEntity.ifPresent(fvpEntity::setValidazioneEntity);
         tipoFormatoEntity.ifPresent(fvpEntity::setTipoFormatoEntity);
         fvpEntity.setStato(true);
 
-        if(fvpEntity.getValidazioneEntity() == null || fvpEntity.getTipoFormatoEntity() == null)
+        if(fvpEntity.getValidazioneEntity() == null ||
+                fvpEntity.getTipoFormatoEntity() == null ||
+                fvpEntity.getDepositatoreEntity() == null)
             return formatoValidazionePacchettoMapper.toModel(fvpEntity);
         return formatoValidazionePacchettoMapper.toModel(formatoValidazionePacchettoRepository.save(fvpEntity));
     }

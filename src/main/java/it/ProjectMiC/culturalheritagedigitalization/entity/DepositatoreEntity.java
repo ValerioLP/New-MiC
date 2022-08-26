@@ -26,10 +26,10 @@ public class DepositatoreEntity {
     @Column(name = "Id_Provider_PDND", updatable = false, nullable = false, length = 50)
     private String uuid_provider;
 
-    @Column(name = "Note", updatable = false, nullable = false)
+    @Column(name = "Note")
     private String note;
 
-    @OneToOne(mappedBy = "depositatoreEntity")
+    @OneToOne(mappedBy = "depositatoreEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private FormatoValidazionePacchettoEntity fvpE;
 
     @Column(name = "Stato")

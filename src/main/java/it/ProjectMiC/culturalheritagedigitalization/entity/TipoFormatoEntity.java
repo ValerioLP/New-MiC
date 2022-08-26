@@ -27,7 +27,7 @@ public class TipoFormatoEntity {
     @Column(name = "Espressione")
     private String espressione;
 
-    @OneToMany(mappedBy = "tipoFormatoEntity", cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "tipoFormatoEntity", cascade = CascadeType.ALL)
     private List<FormatoValidazionePacchettoEntity> fvpEntities;
 
     @Column(name = "Stato")

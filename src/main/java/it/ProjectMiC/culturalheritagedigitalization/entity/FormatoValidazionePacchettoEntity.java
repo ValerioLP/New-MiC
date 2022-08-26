@@ -22,21 +22,21 @@ public class FormatoValidazionePacchettoEntity {
     @Column(name = "Id_Formato_Validazione", updatable = false, nullable = false, length = 50)
     private String id_formato;
 
-    @Column(name = "Descrizione", nullable = false, unique = true)
+    @Column(name = "Descrizione", nullable = false)
     private String descrizione;
 
     @Column(name = "Id_Provider_PDND", updatable = false, nullable = false, length = 50)
     private String uuid_provider;
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_depositatore", referencedColumnName = "Id_Depositatore")
     private DepositatoreEntity depositatoreEntity;
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_validazione", referencedColumnName = "Id_Validazione")
     private ValidazioneEntity validazioneEntity;
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tipo_formato", referencedColumnName = "Id_Tipo_Formato")
     private TipoFormatoEntity tipoFormatoEntity;
 

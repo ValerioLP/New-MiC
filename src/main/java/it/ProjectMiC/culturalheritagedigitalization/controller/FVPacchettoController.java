@@ -99,7 +99,7 @@ public class FVPacchettoController {
         if (fvp.getValidazione() == null)
             return new ResponseEntity<>("Non e' stato trovato nessun id_validazione: " + checkIdValidazione, HttpStatus.NOT_ACCEPTABLE);
         if(fvp.getDepositatore() == null)
-            return new ResponseEntity<>("Non e' stato trovato nessun depositatore con uuid_provider: " + checkUuidProvider, HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity<>("Esiste gia' un depositatore con uuid_provider: " + checkUuidProvider, HttpStatus.NOT_ACCEPTABLE);
         return new ResponseEntity<>(fvp, HttpStatus.CREATED);
     }
 
