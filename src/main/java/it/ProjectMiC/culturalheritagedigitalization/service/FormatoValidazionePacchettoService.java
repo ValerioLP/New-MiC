@@ -1,11 +1,12 @@
 package it.ProjectMiC.culturalheritagedigitalization.service;
 
+import it.ProjectMiC.culturalheritagedigitalization.entity.DepositatoreEntity;
 import it.ProjectMiC.culturalheritagedigitalization.entity.FormatoValidazionePacchettoEntity;
 import it.ProjectMiC.culturalheritagedigitalization.entity.TipoFormatoEntity;
 import it.ProjectMiC.culturalheritagedigitalization.entity.ValidazioneEntity;
 import it.ProjectMiC.culturalheritagedigitalization.model.FormatoPacchettoRequest;
 import it.ProjectMiC.culturalheritagedigitalization.model.FormatoValidazionePacchetto;
-import it.ProjectMiC.culturalheritagedigitalization.model.Validazione;
+import it.ProjectMiC.culturalheritagedigitalization.repository.DepositatoreRepository;
 import it.ProjectMiC.culturalheritagedigitalization.repository.FormatoValidazionePacchettoRepository;
 import it.ProjectMiC.culturalheritagedigitalization.repository.TipoFormatoRepository;
 import it.ProjectMiC.culturalheritagedigitalization.repository.ValidazioneRepository;
@@ -30,34 +31,41 @@ public class FormatoValidazionePacchettoService {
     private final FormatoValidazionePacchettoRepository formatoValidazionePacchettoRepository;
     private final ValidazioneRepository validazioneRepository;
     private final TipoFormatoRepository tipoFormatoRepository;
+    private final DepositatoreRepository depositatoreRepository;
 
     public FormatoValidazionePacchettoService(FormatoValidazionePacchettoMapper formatoValidazionePacchettoMapper,
                                               FormatoValidazionePacchettoRepository formatoValidazionePacchettoRepository,
                                               ValidazioneRepository validazioneRepository,
-                                              TipoFormatoRepository tipoFormatoRepository) {
+                                              TipoFormatoRepository tipoFormatoRepository,
+                                              DepositatoreRepository depositatoreRepository) {
         this.formatoValidazionePacchettoMapper = formatoValidazionePacchettoMapper;
         this.formatoValidazionePacchettoRepository = formatoValidazionePacchettoRepository;
         this.validazioneRepository = validazioneRepository;
         this.tipoFormatoRepository = tipoFormatoRepository;
+        this.depositatoreRepository = depositatoreRepository;
     }
 
     private final static Logger LOGGER = LoggerFactory.getLogger(FormatoValidazionePacchettoService.class);
 
     public FormatoValidazionePacchetto saveFormatoPacchetto(FormatoPacchettoRequest formatoPacchetto) {
         Optional<ValidazioneEntity> validazioneEntity = validazioneRepository.findById(formatoPacchetto.getId_validazione());
-        if(!validazioneEntity.isPresent()) {
+        if(!validazioneEntity.isPresent())
             LOGGER.info("Non e' stata trovata nessuna validazione con id: " + formatoPacchetto.getId_validazione());
-        }
 
         Optional<TipoFormatoEntity> tipoFormatoEntity = tipoFormatoRepository.findById(formatoPacchetto.getId_tipo_formato());
-        if(!tipoFormatoEntity.isPresent()) {
+        if(!tipoFormatoEntity.isPresent())
             LOGGER.info("Non e' stato trovato nessun tipo formato con id: " + formatoPacchetto.getId_tipo_formato());
-        }
+
+        Optional<DepositatoreEntity> depositatoreEntity = depositatoreRepository.findByUuid_provider(formatoPacchetto.getUuid_provider());
+        if(!depositatoreEntity.isPresent())
+            LOGGER.info("Non e' stato trovato nessun depositatore con uuid_provider: " + formatoPacchetto.getUuid_provider());
 
         FormatoValidazionePacchettoEntity fvpEntity = new FormatoValidazionePacchettoEntity();
         fvpEntity.setId_formato(UUID.randomUUID().toString());
-        //fvpEntity.setId_depositatore(formatoPacchetto.getId_depositatore());
+        fvpEntity.setUuid_provider(formatoPacchetto.getUuid_provider());
+        fvpEntity.setFlussoNifi(formatoPacchetto.getFlussoNifi());
         fvpEntity.setDescrizione(formatoPacchetto.getDescrizione());
+        depositatoreEntity.ifPresent(fvpEntity::setDepositatoreEntity);
         validazioneEntity.ifPresent(fvpEntity::setValidazioneEntity);
         tipoFormatoEntity.ifPresent(fvpEntity::setTipoFormatoEntity);
         fvpEntity.setStato(true);
@@ -94,6 +102,7 @@ public class FormatoValidazionePacchettoService {
             FormatoValidazionePacchettoEntity fvpEntity = new FormatoValidazionePacchettoEntity();
             TipoFormatoEntity tipoFormatoEntity = new TipoFormatoEntity();
             ValidazioneEntity validazioneEntity = new ValidazioneEntity();
+            DepositatoreEntity depositatoreEntity = new DepositatoreEntity();
 
             if(formatoPacchetto.getId_tipo_formato() != null) {
                 Optional<TipoFormatoEntity> tipoFormatoEntityOpt = tipoFormatoRepository.findById(formatoPacchetto.getId_tipo_formato());
@@ -113,17 +122,26 @@ public class FormatoValidazionePacchettoService {
             }
             else validazioneEntity = entityOld.get().getValidazioneEntity();
 
-            /*if(formatoPacchetto.getId_depositatore() != null)
-                fvpEntity.setId_depositatore(formatoPacchetto.getId_depositatore());
-            else fvpEntity.setId_depositatore(entityOld.get().getId_depositatore());*/
+            if(formatoPacchetto.getUuid_provider() != null) {
+                Optional<DepositatoreEntity> depositatoreEntityOpt = depositatoreRepository.findByUuid_provider(formatoPacchetto.getUuid_provider());
+                if(!depositatoreEntityOpt.isPresent()) {
+                    LOGGER.info("Non e' stato trovato nessun depositatore con uuid_provider: " + formatoPacchetto.getUuid_provider());
+                    depositatoreEntity = null;
+                } else depositatoreEntity = depositatoreEntityOpt.get();
+            }
 
             if(formatoPacchetto.getDescrizione() != null)
                 fvpEntity.setDescrizione(formatoPacchetto.getDescrizione());
             else fvpEntity.setDescrizione(entityOld.get().getDescrizione());
 
+            if(formatoPacchetto.getFlussoNifi() != null)
+                fvpEntity.setFlussoNifi(formatoPacchetto.getFlussoNifi());
+            else fvpEntity.setFlussoNifi(entityOld.get().getFlussoNifi());
+
             fvpEntity.setId_formato(entityOld.get().getId_formato());
             fvpEntity.setValidazioneEntity(validazioneEntity);
             fvpEntity.setTipoFormatoEntity(tipoFormatoEntity);
+            fvpEntity.setDepositatoreEntity(depositatoreEntity);
             fvpEntity.setCreatedAt(entityOld.get().getCreatedAt());
             fvpEntity.setLastUpdate(new Date());
             fvpEntity.setStato(true);

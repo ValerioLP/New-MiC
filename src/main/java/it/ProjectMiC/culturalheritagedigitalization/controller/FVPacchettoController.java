@@ -74,15 +74,13 @@ public class FVPacchettoController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = FormatoValidazionePacchetto.class))}),
             @ApiResponse(responseCode = "406", description = "Si prega di inserire un id valido",
-                    content = @Content),
-            @ApiResponse(responseCode = "404", description = "L'id inserito non e stato trovato",
                     content = @Content)})
     @PostMapping("/createformatopacchetto")
     public ResponseEntity<?> createFormatoPacchetto(@RequestBody FormatoPacchettoRequest formatoPacchetto) {
         String checkDescrizione = formatoPacchetto.getDescrizione();
         String checkIdValidazione = formatoPacchetto.getId_validazione();
         String checkIdTipoFormato = formatoPacchetto.getId_tipo_formato();
-        //String checkIdDepositatore = formatoPacchetto.getId_depositatore();
+        String checkUuidProvider = formatoPacchetto.getUuid_provider();
 
         if (checkDescrizione == null || checkDescrizione.equals(""))
             return new ResponseEntity<>("Si prega di inserire il campo descrizione", HttpStatus.NOT_ACCEPTABLE);
@@ -92,14 +90,16 @@ public class FVPacchettoController {
             return new ResponseEntity<>("Si prega di inserire il campo id_validazione", HttpStatus.NOT_ACCEPTABLE);
         if (checkIdTipoFormato == null || checkIdTipoFormato.equals(""))
             return new ResponseEntity<>("Si prega di inserire il campo id_tipo_formato", HttpStatus.NOT_ACCEPTABLE);
-        /*if(checkIdDepositatore == null || checkIdDepositatore.equals(""))
-            return new ResponseEntity<>("Si prega di inserire il campo id_depositatore", HttpStatus.NOT_ACCEPTABLE);*/
+        if(checkUuidProvider == null || checkUuidProvider.equals(""))
+            return new ResponseEntity<>("Si prega di inserire il campo uuid_provider", HttpStatus.NOT_ACCEPTABLE);
 
         FormatoValidazionePacchetto fvp = formatoValidazionePacchettoService.saveFormatoPacchetto(formatoPacchetto);
         if (fvp.getTipoFormato() == null)
             return new ResponseEntity<>("Non e' stato trovato nessun id_formato: " + checkIdTipoFormato, HttpStatus.NOT_ACCEPTABLE);
         if (fvp.getValidazione() == null)
             return new ResponseEntity<>("Non e' stato trovato nessun id_validazione: " + checkIdValidazione, HttpStatus.NOT_ACCEPTABLE);
+        if(fvp.getDepositatore() == null)
+            return new ResponseEntity<>("Non e' stato trovato nessun depositatore con uuid_provider: " + checkUuidProvider, HttpStatus.NOT_ACCEPTABLE);
         return new ResponseEntity<>(fvp, HttpStatus.CREATED);
     }
 
@@ -126,8 +126,6 @@ public class FVPacchettoController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = FormatoValidazionePacchetto.class))}),
             @ApiResponse(responseCode = "406", description = "Si prega di inserire un id valido",
-                    content = @Content),
-            @ApiResponse(responseCode = "404", description = "L'id inserito non e stato trovato",
                     content = @Content)})
     @PutMapping("/updateformatopacchetto")
     public ResponseEntity<?> updateFormatoValidazionePacchetto(@RequestBody FormatoPacchettoRequest formatoPacchetto) {
